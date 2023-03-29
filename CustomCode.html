@@ -1,0 +1,337 @@
+<html>
+   <head>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+   </head>
+   <div>
+      <form>
+         <div id="996516259473090042-form-parent" class="wsite-form-container"
+            style="margin-top:10px;">
+            <ul class="formlist" id="996516259473090042-form-list">
+               <label class="wsite-form-label wsite-form-fields-required-label"><span class="form-required">*</span> Indicates required field</label>
+               <div>
+                  <div class="wsite-form-field" style="margin:5px 0px 5px 0px;">
+                     <label class="wsite-form-label" for="iMiles">MILES <span class="form-required">*</span></label>
+                     <div class="wsite-form-input-container">
+                        <input aria-required="true" id="iMiles" class="wsite-form-input wsite-input wsite-input-width-285px" type="NUMBER" name="_u750302863230937996" />
+                     </div>
+                  </div>
+               </div>
+               <div>
+                  <div class="wsite-form-field" style="margin:5px 0px 5px 0px;">
+                     <label class="wsite-form-label" for="iMinutes">MINUTES <span class="form-required">*</span></label>
+                     <div class="wsite-form-input-container">
+                        <input aria-required="true" id="iMinutes" class="wsite-form-input wsite-input wsite-input-width-285px" type="NUMBER" name="_u682654816767808261" />
+                     </div>
+                     <div id="instructions-682654816767808261" class="wsite-form-instructions" style="display:none;"></div>
+                  </div>
+               </div>
+               <div>
+                  <div class="wsite-form-field" style="margin:5px 0px 5px 0px;">
+                     <label class="wsite-form-label" for="iMusic">Choose your beat:</span></label>
+                     <select id="iMusic">
+                        <option value="step">Step</option>
+                        <option value="drum">Drum</option>
+                        <option value="gamer">Gamer</option>
+                        <option value="melody">Melody</option>
+                        <option value="sharp">Sharp</option>
+                     </select>
+                  </div>
+               </div>
+               <input type="button" class='btn btnStart' id="btnStart" value="START"  />
+               <input type="button" class='btn' id="btnPause" value="PAUSE"  />
+               <input type="button" class='btn' id="btnReset" value="RESET"  />
+         </div>
+         </ul>
+   </div>
+   </form>
+   <div id="g-recaptcha-996516259473090042" class="recaptcha" data-size="invisible" data-recaptcha="0" data-sitekey="6Ldf5h8UAAAAAJFJhN6x2OfZqBvANPQcnPa8eb1C"></div>
+   </div>
+   <audio id="myAudio" controls style="display:none">
+      <source src="/files/theme/pop50.mp3" type="audio/mpeg">
+   </audio>
+   <div id="progressBar">
+      <div class="bar" id="bar"></div>
+   </div>
+   <div id="overlay">
+      <div id="popup">
+         <div id="close">X</div>
+         <p>AWESOME!!</p>
+      </div>
+   </div>
+   <script>
+      var paused = false;
+      var done = false;
+      var progressTimer;
+      var delayTimer;
+      $( document ).ready(function() {
+             console.log( "document loaded" );
+             $("#progressBar").hide();
+        $('#btnPause').attr("disabled", true).addClass('disabled');
+      var audioControl = document.getElementById("myAudio");
+      audioControl.controls = false;
+      var delaytime=0;
+      var minutes = 0;
+      var starttime = 0;
+      var totaltime = 0;
+      audioControl.onended = function(){
+       if(done) {
+       	return false;
+       }
+      	this.currentTime = 0;
+        var delayTimer = setTimeout(function(){
+        console.log("paused val:"+paused);
+      	if(!paused) {
+      		audioControl.play();
+      	}
+          clearTimeout(delayTimer);
+        }, delaytime);
+      }
+      
+      function clear() {
+      	$('#iMiles').val('');
+      	$('#iMinutes').val('');
+      	$('#iMusic').val('step');
+      	audioControl.style.display = "none";
+      }
+      
+      var hashMP3 = {}
+      hashMP3['step'] = 'step.mp3';
+      hashMP3['drum'] = 'drum.mp3';
+      hashMP3['gamer'] = 'gamer.mp3';
+      hashMP3['melody'] = 'melody.mp3';
+      hashMP3['sharp'] = 'sharp.mp3';
+      var mp3URL = "/files/theme/"
+      
+      $( "#btnStart" ).click(function() {
+      
+      var miles = $("#iMiles").val();
+      minutes = $("#iMinutes").val();
+      
+      var mp3 = $("#iMusic option:selected" ).val();
+       var mp3src = mp3URL+hashMP3[mp3]
+       $("#myAudio").attr("src", mp3src);
+      
+      var validation = true;
+      if (miles == "") {
+      $("#iMiles").css("border", "1px solid red");
+      validation = false;
+      }
+      else
+      {
+      $("#iMiles").css("border", "1px solid gray");
+      }
+      if (minutes == "") {
+      $("#iMinutes").css("border", "1px solid red");
+      validation = false;
+      }
+      else
+      {
+      $("#iMinutes").css("border", "1px solid gray");
+      }
+      if(!validation) return false;
+      
+      
+      if(progressTimer) clearTimeout(progressTimer);
+      progressTimer = null;
+      
+        //var miles = document.getElementById("iMiles").value;
+        //minutes = document.getElementById("iMinutes").value;
+        if(!miles || miles <=0) {
+      alert("Enter MILES");
+      return false;
+        }
+        if(!minutes || minutes <=0) {
+      alert("Enter MINUTES");
+      return false;
+        }
+      
+      $("#myAudio").show();
+      $("#progressBar").show();
+      $('#btnPause').attr("disabled", false).removeClass('disabled');
+      $('#iMiles').attr("disabled", true).addClass('disabled');
+      $('#iMinutes').attr("disabled", true).addClass('disabled');
+      $('#iMusic').attr("disabled", true).addClass('disabled');
+      paused = false;
+      
+      
+        var onesteptime = 680*(minutes/60)/miles;
+      
+        onesteptime = onesteptime * 1.25 // cover stride length, assuming 2.5 feet per stride
+      
+        if(onesteptime>50) {
+        	delaytime = onesteptime-50;
+        } else {
+        	delaytime = 0;
+        }
+      
+        totaltime = minutes*60*1000; //milliseconds
+        console.log("miles:"+miles);
+        console.log("minutes:"+minutes);
+        console.log("totaltime:"+totaltime);
+        console.log("onesteptime:"+onesteptime);
+      setTimeout(runComplete, totaltime)
+      
+        console.log(miles+","+minutes+","+onesteptime+","+delaytime+","+totaltime);
+        audioControl.style.display = "block";
+        audioControl.play();
+        progress(minutes*60, minutes*60, $("#progressBar"));
+        $('#btnStart').attr("disabled", true).addClass('disabled');
+        return false;
+      });
+      
+      
+      $('#close').click(function() {
+         $('#overlay').fadeOut(300);
+      });
+      
+      
+      
+      function runComplete() {
+      done = true;
+        $('#overlay').fadeIn(300).fadeOut(3000);
+      $( "#btnReset" ).click();
+      }
+      
+      
+      $( "#btnReset" ).click(function() {
+        paused = true;
+      $("#iMiles").css("border", "1px solid gray");
+      $("#iMinutes").css("border", "1px solid gray");
+        $('#btnPause').attr("disabled", true).addClass('disabled');
+        $('#iMiles').attr("disabled", false).removeClass('disabled').val('');
+        $('#iMinutes').attr("disabled", false).removeClass('disabled').val('');
+        $('#iMusic').attr("disabled", false).removeClass('disabled').val('step');
+        if(audioControl) {
+        	audioControl.style.display = "none";
+        	audioControl.pause();
+        	$("#myAudio").hide();
+        	$("#progressBar").hide();
+      }
+      if(progressTimer) clearTimeout(progressTimer);
+      progressTimer = null;
+      if(delayTimer) clearTimeout(delayTimer);
+      delayTimer = null;
+      console.log("clear");
+      $('#btnStart').attr("disabled", false).removeClass('disabled');
+      $("#btnPause").prop('value', 'PAUSE');
+      });
+      
+      $( "#btnPause" ).click(function() {
+      
+      	if($("#btnPause").prop('value') == 'PAUSE')
+      	{
+      		$("#btnPause").prop('value', 'CONTINUE');
+       	paused = true;
+      console.log("pause");
+      audioControl.pause();
+      clearTimeout(delayTimer);
+      delayTimer = null;
+      console.log("paused");
+      	} else {
+       	$("#btnPause").prop('value', 'PAUSE');
+      		paused = false;
+        	audioControl.play();
+      	}
+      });
+      
+      function progress(timeleft, timetotal, $element) {
+      	if (timeleft%25 == 0) console.log("paused progress val:"+paused);
+      if(!paused) {
+          var progressBarWidth = timeleft * $element.width() / timetotal;
+          $element.find('div').animate({ width: progressBarWidth }, 500).html(Math.floor(timeleft/60) + ":"+ timeleft%60);
+         }
+         if(timeleft > 0) {
+             progressTimer = setTimeout(function() {
+                 progress(paused?timeleft:timeleft - 1, timetotal, $element);
+             }, 1000);
+         }
+      };
+      
+      
+      
+      });
+   </script>
+   <style>
+      #overlay {
+      color: orangered;
+      position: fixed;
+      height: 100%;
+      width: 100%;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      }
+      #popup {
+      max-width: 600px;
+      width: 80%;
+      max-height: 300px;
+      padding: 20px;
+      position: relative;
+      background: #fff;
+      margin: 20px auto;
+      }
+      #close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+      color: #000;
+      }
+      .disabled {
+      color: lightslategrey !important;
+      }
+      .btnStart {
+      margin-left: 5px;
+      }
+      .btn:hover {
+      color: green;
+      }
+      .btn {
+      display: inline-block;
+      height: auto;
+      padding: 10px 10px;
+      background: transparent;
+      background-image: none !important;
+      color: black;
+      letter-spacing: 0.15em;
+      font-family: "Unite", sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1;
+      text-transform: uppercase;
+      width: 88px;
+      }
+      #notice {
+      width: 285px;
+      margin: 10px auto;
+      height: 22px;
+      color:
+      float: left;
+      }
+      #progressBar {
+      width: 285px;
+      margin: 10px auto;
+      height: 22px;
+      background-color: orangered;
+      float: left;
+      }
+      #progressBar div {
+      height: 100%;
+      text-align: right;
+      padding: 0 10px;
+      line-height: 22px; /* same as #progressBar height if we want text middle aligned */
+      width: 0;
+      background-color: darkgray;
+      box-sizing: border-box;
+      }
+      #iMiles {
+      padding-left: 5px !important;
+      }
+      #iMinutes {
+      padding-left: 5px !important;
+      }
+   </style>
+</html>
